@@ -1,6 +1,9 @@
 from django.urls import path
-from tagger import views
+from .views import index
+from . import views
 
 urlpatterns = [
-    path("", views.index, name='index'),
+    path('', index, name='index'),  # Home page
+    path('save_ner/', views.save_ner_entry, name='save_ner_entry'),
+    path('fetch-existing-tags/', views.fetch_existing_tags, name='fetch_existing_tags'),
 ]
