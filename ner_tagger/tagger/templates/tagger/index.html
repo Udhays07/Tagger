@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NER Tagger</title>
+    <style>
+        body {
+            margin: 0px;
+            padding: 0px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        #navbar {
+            color: white;
+            background-color: rgb(73, 131, 255);
+            padding-top: 10px;
+            padding-bottom: 5px;
+            text-align: center;
+        }
+        #input-box {
+            margin: 20px;
+            padding: 10px;
+            width: 90%;
+            border-radius: 5px;
+            border-color: black;
+            border: 1px solid black;
+            min-height: 100px;
+        }
+        #input button {
+            margin-left: 20px;
+            height: 30px;
+            border: 1px solid black;
+            border-radius: 5px;
+        }
+        #input button:hover {
+            cursor: pointer;
+            background-color: rgb(73, 131, 255);
+            color: white;
+        }
+        #entity-tags button {
+            margin-top: 30px;
+            height: 30px;
+            border: 1px solid black;
+            border-radius: 5px;
+            margin-left: 20px;
+        }
+        #outputbox {
+            width: 90%;
+            margin: 20px;
+            padding: 10px;
+            border: 1px solid black;
+            border-radius: 5px;
+            min-height: 100px;
+        }
+        #output button {
+            margin-left: 20px;
+            height: 30px;
+            border: 1px solid black;
+            border-radius: 5px;
+        }
+        #entity-tags button:hover, #output button:hover {
+            cursor: pointer;
+            background-color: rgb(73, 131, 255);
+            color: white;
+        }
+        .highlight {
+            border: 2px solid rgb(73, 131, 255);
+            border-radius: 2px;
+        }
+        .tagged {
+            border: 2px solid green;
+            border-radius: 2px;
+            background-color: lightgreen;
+        }
+        .tag-display {
+            font-weight: bold;
+            color: blue;
+        }
+    </style>
+</head>
+<body>
+    <div id="navbar">
+        <h1>NER Tagger</h1>
+    </div>
+    <div id="input">
+        <div id="input-box" contenteditable="true" placeholder="Enter your text here"></div>
+        <br>
+        <button id="tag-ner-btn">Tag NER</button>
+    </div>
+    <div id="entity-tags">
+        <button data-tag="NAME">NAME</button>
+        <button data-tag="ORGANIZATION">ORGANIZATION</button>
+        <button data-tag="GPE">GPE</button>
+        <button data-tag="MOBILE_NO">MOBILE NO</button>
+        <button data-tag="DATE">DATE</button>
+        <button id="undo-btn">Undo</button>
+    </div>
+    <div id="output">
+        <h4 style="margin-left: 20px;">Tagged Words</h4>
+        <div id="outputbox"></div>
+        <br>
+        <button id="download-btn">Download Tagged Words</button>
+    </div>
+
+    <script>
+    let selectedWord = null;
+    let selectedTag = null;
+    let lastAction = null;
+    const taggedWords = [];
+
+    // Convert input text to clickable words
+    document.getElementById('tag-ner-btn').addEventListener('click', function () {
+        const text = document.getElementById('input-box').innerText.trim();
+        const words = text.split(' ');
+        const inputBox = document.getElementById('input-box');
+        inputBox.innerHTML = '';  // Clear the input box
+        words.forEach(word => {
+            const span = document.createElement('span');
+            span.textContent = word + ' ';
+            span.classList.add('word');
+            span.style.cursor = 'pointer';
+            span.addEventListener('click', function () {
+                if (selectedWord) {
+                    selectedWord.classList.remove('highlight');
+                }
+                span.classList.add('highlight');
+                selectedWord = span;
+            });
+            inputBox.appendChild(span);
+        });
+    });
+
+    // Handle tagging words with NER
+    document.querySelectorAll('#entity-tags button[data-tag]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (!selectedWord) return alert('Please select a word');
+            selectedTag = btn.getAttribute('data-tag');
+            tagSelectedWord();
+        });
+    });
+
+    // Tag the selected word and move it to the output box
+    function tagSelectedWord() {
+        if (!selectedTag) return;
+        const word = selectedWord.textContent.trim();
+        selectedWord.classList.add('tagged');
+        selectedWord.classList.remove('highlight');
+        selectedWord.setAttribute('data-tag', selectedTag);
+        const taggedWord = `<${selectedTag}>${word}</${selectedTag}>`;
+        addTaggedWordToOutput(taggedWord, word, selectedTag);  // Update the output box properly
+        lastAction = { word, tag: selectedTag, element: selectedWord };
+        taggedWords.push({ word, tag: selectedTag });
+        updateLocalStorage();
+        selectedWord = null; // Reset after tagging
+    }
+
+    // Add tagged word to the output box with visual tags
+    function addTaggedWordToOutput(taggedWord, word, tag) {
+        const outputBox = document.getElementById('outputbox');
+        const span = document.createElement('span');
+        span.innerHTML = `${word} <span class="tag-display">[${tag}]</span>`;
+        span.classList.add('tagged-word');
+        outputBox.appendChild(span);
+        outputBox.appendChild(document.createTextNode(' ')); // Add space between words
+    }
+
+    // Undo the last action
+    document.getElementById('undo-btn').addEventListener('click', function () {
+        if (lastAction) {
+            const { word, tag, element } = lastAction;
+            element.classList.remove('tagged');
+            element.removeAttribute('data-tag');
+            
+            // Remove the word from the output box
+            const outputBox = document.getElementById('outputbox');
+            const regex = new RegExp(`${word} <span class="tag-display">\\[${tag}\\]<\\/span>\\s*`, 'g');
+            outputBox.innerHTML = outputBox.innerHTML.replace(regex, '');
+            
+            // Remove from taggedWords array
+            const index = taggedWords.findIndex(item => item.word === word && item.tag === tag);
+            if (index !== -1) {
+                taggedWords.splice(index, 1);
+            }
+
+            lastAction = null; // Reset lastAction after undo
+            updateLocalStorage(); // Update localStorage after undo
+        }
+    });
+
+    // Create XML from tagged words
+    function createXML(data) {
+        let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<NER>\n';
+        data.forEach(item => {
+            // Escape special XML characters in the word
+            const escapedWord = item.word.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            xml += `  <${item.tag}>${escapedWord}</${item.tag}>\n`;
+        });
+        xml += '</NER>';
+        return xml;
+    }
+
+    // Download XML file
+    document.getElementById('download-btn').addEventListener('click', function () {
+        const xml = createXML(taggedWords);
+        const blob = new Blob([xml], { type: 'application/xml' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'tagged_words.xml';
+        link.click();
+    });
+
+    // Update localStorage
+    function updateLocalStorage() {
+        localStorage.setItem('taggedWords', JSON.stringify(taggedWords));
+    }
+
+    // Load from localStorage
+    function loadFromLocalStorage() {
+        const storedTaggedWords = JSON.parse(localStorage.getItem('taggedWords') || '[]');
+        storedTaggedWords.forEach(item => {
+            addTaggedWordToOutput(`<${item.tag}>${item.word}</${item.tag}>`, item.word, item.tag);
+        });
+    }
+
+    window.onload = function () {
+        loadFromLocalStorage();
+    };
+</script>
+</body>
+</html>
+

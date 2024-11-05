@@ -1,25 +1,10 @@
-# from django.db import models
-
-# class tagger(models.Model):
-#     word = models.CharField(max_length=100)
-#     entity = models.CharField(max_length=100)
-
-# from django.db import models
-
-# class EntityType(models.Model):
-#     name = models.CharField(max_length=50, unique=True)
-
-#     def __str__(self):
-#         return self.name
-
-# class Word(models.Model):
-#     words = models.CharField(max_length=100)
-#     entity_type = models.ForeignKey(EntityType, on_delete=models.CASCADE)
-
-#     def __str__(self):
-#         return f"{self.words} - {self.entity_type}"
-
 from django.db import models
+
+class Sentence(models.Model):
+    text = models.TextField()
+
+    def __str__(self):
+        return self.text
 
 class Tag(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -29,8 +14,8 @@ class Tag(models.Model):
 
 class NER(models.Model):
     word = models.CharField(max_length=100)
-    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    tag = models.ForeignKey('Tag', on_delete=models.CASCADE, related_name='ners')
+    sentence = models.ForeignKey('Sentence', on_delete=models.CASCADE, related_name='ners')
 
     def __str__(self):
-        return f"{self.word} - {self.tag.name}"
-
+        return f"{self.word} - {self.tag.name} in {self.sentence.text}"
