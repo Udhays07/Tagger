@@ -1,4 +1,4 @@
-# NER Tagging Web Application
+# Tagging Web Application
 
-This is a simple Named Entity Recognition (NER) tagging web application that allows users to manually tag words in a given text with predefined entity categories (e.g., Name, Location, Organization). Users can tag, and download the tagged words in an XML format.
+This is a simple Text Tagging web application that allows users to manually tag words in a given text with predefined POS Tags and NER Tags. Users can tag, and download the tagged words in an XML format.
  
