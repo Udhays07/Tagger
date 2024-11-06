@@ -18,34 +18,25 @@ def save_pos_tags(request):
         sentence_id = request.POST.get('sentence_id')
         taggedWords = request.POST.getlist('taggedWords[]')
 
-        # Retrieve the sentence object based on ID
         try:
-            sentence = Sentence.objects.get(id=sentence_id)
-            print(f"Sentence found: {sentence}")
+            sentence_instance = Sentence.objects.get(id=sentence_id)
+
         except Sentence.DoesNotExist:
-            print("Error: Sentence does not exist.")
             return JsonResponse({'status': 'error', 'message': 'Sentence not found'}, status=400)
 
         for item in taggedWords:
             word, separator, tag = item.partition(':')
             if separator:
-                word = word.strip()
-                tag = tag.strip()
-                originalIndex = originalIndex.strip()
-                print(f"Processing word: '{word}' with tag: '{tag}'")
-
-                # Retrieve existing tag from Tag table
                 try:
-                    tag = Tag.objects.get(name=tag)
+                    tag_instance = Tag.objects.get(name=tag.strip()) ## get with id 
+
                 except Tag.DoesNotExist:
-                    print(f"Tag '{tag}' does not exist in the Tag table.")
                     return JsonResponse({'status': 'error', 'message': f"Tag '{tag}' not found"}, status=400)
 
-                # Save each word-tag pair to POSTag table
-                postag = POSTag.objects.create(word=word, sentence=sentence, tag=tag)
-                print(f"Saved POSTag entry: {postag}")
+                POSTag.objects.create(word=word.strip(), sentence=sentence_instance, tag=tag_instance)
 
         return JsonResponse({'status': 'success'})
+    
     return JsonResponse({'status': 'error'}, status=400)
 
 def index(request):
