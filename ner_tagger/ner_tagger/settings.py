@@ -38,11 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-<<<<<<< HEAD
-    'pos_tagger.apps.PosTaggerConfig'
-=======
-    'postagger',    
->>>>>>> 155ac80366fd9f0aea0023d87e440b36dca5cdec
 ]
 
 MIDDLEWARE = [
@@ -83,9 +78,6 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
-        'OPTIONS': {
-            'timeout': 20,
-        }
     }
 }
 

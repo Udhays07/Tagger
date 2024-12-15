@@ -14,6 +14,7 @@
             flex-direction: column;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+<<<<<<< HEAD
         .header {
             width: 100%;
             height: 14%;
@@ -78,6 +79,41 @@
             background-color: #cad6e7;
             border-color: #cad6e7;
             border-radius: 5px;
+=======
+        #main-container {
+            display: flex;
+            width: 100%;
+        }
+        #existing-ui {
+            width: 70%;
+            padding: 20px;
+        }
+        #tag-table-container {
+            width: 30%;
+            padding: 20px;
+            border-right: 1px solid #ddd;
+        }
+        #tag-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        #tag-table th, #tag-table td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        #tag-table th {
+            background-color: #f2f2f2;
+        }
+        #navbar {
+            color: white;
+            background-color: rgb(73, 131, 255);
+            padding-top: 10px;
+            padding-bottom: 5px;
+            text-align: center;
+>>>>>>> 155ac80366fd9f0aea0023d87e440b36dca5cdec
         }
         #input-box {
             height: 100%;
@@ -87,6 +123,7 @@
             border-radius: 5px;
             padding: 10px;
         }
+<<<<<<< HEAD
         #tag-ner-btn {
             margin-left: 170px;
             width: 10%;
@@ -96,6 +133,24 @@
             border-radius: 5px;
             background-color: #084594;
             border: 2px solid #084594;
+=======
+        #input button,
+        #entity-tags button,
+        #output button,
+        #sentence-update-btn,
+        #undo-btn {
+            margin-top: 20px;
+            margin-left: 20px;
+            height: 30px;
+            border: 1px solid black;
+            border-radius: 5px;
+        }
+        #input button:hover,
+        #entity-tags button:hover,
+        #output button:hover,
+        #sentence-update-btn:hover,
+        #undo-btn:hover {
+>>>>>>> 155ac80366fd9f0aea0023d87e440b36dca5cdec
             cursor: pointer;
         }
 
@@ -103,13 +158,66 @@
             background-color: white;
             -webkit-text-fill-color: #084594;
         }
+<<<<<<< HEAD
         .tagbutton {
             height: 100%;
             width: 100%;
             background-color: #084594;
             color: #fff;
+=======
+        .tagged {
+            border: 2px solid green;
+            border-radius: 2px;
+            background-color: lightgreen;
+        }
+        .tag-display {
+            font-weight: bold;
+            color: blue;
+        }
+        #outputbox, #sentence-box {
+            width: 90%;
+            margin: 20px;
+            padding: 10px;
+            border: 1px solid black;
+>>>>>>> 155ac80366fd9f0aea0023d87e440b36dca5cdec
             border-radius: 5px;
             border-color: #084594;
+        }
+        #sentence-box {
+            display: none;  /* Initially hidden */
+        }
+        .button-active {
+            background-color: rgb(73, 131, 255);
+            color: white;
+        }
+        .prefix-button.active {
+            background-color: rgb(73, 131, 255);
+            color: white;
+        }
+        #database-section {
+            display: none; /* Initially hideen */
+        }
+        #tag-table-container{
+            height: 80vh;
+            overflow: scroll;
+        }
+        /* #tag-table{
+            margin-top: 60px;
+            scroll-margin-block-start:inherit;
+        } */
+        #tag-table button {
+            display: inline-block !important;
+            background-color: lightblue;
+            padding: 5px 10px;
+            margin: 5px;
+            border: 1px solid black;
+        }
+        button#update-btn {
+            margin-right: 1px;
+            margin-left: 10px;
+        }
+        button#remove-btn {
+            margin-left: 17px;
         }
     </style>
   </head>
@@ -121,6 +229,7 @@
         <a href="{% url 'tagger_index' %}" class="ner-navbar"><div>NER Tagger</div></a>
       </div>
     </div>
+<<<<<<< HEAD
     <div class="body">
       <div class="text-area">
         <!-- Use contenteditable to allow input, but it's better to use textarea for simplicity -->
@@ -154,24 +263,509 @@ document.getElementById('tag-ner-btn').addEventListener('click', function () {
         function saveSentencesToDB(sentences) {
             const xhr = new XMLHttpRequest();
             xhr.open('POST', '/tagger/ner-save-sentences/', true);
+=======
+    <div id="main-container"> 
+    <div id="existing-ui">
+    <div id="input">
+        <div id="input-box" contenteditable="true" placeholder="Enter your text here"></div>
+        <br>
+        <button id="tag-ner-btn">Tag NER</button>
+    </div>
+    <div id="sentence-box"></div>
+    <button id="sentence-update-btn" style="display: none;">Update and Next Sentence</button>
+    <button id="undo-btn" style="display: none;">Undo</button>
+    <div id="entity-tags">
+        <div style="margin-top: 20px; padding-left: 20px;">
+            <span>Select Prefix:</span>
+            <button data-prefix="B" class="prefix-button">B</button>
+            <button data-prefix="I" class="prefix-button">I</button>
+            <button data-prefix="L" class="prefix-button">L</button>
+            <button data-prefix="O" class="prefix-button">O</button>
+            <button data-prefix="U" class="prefix-button">U</button>
+        </div>
+        <div>    
+            <button data-tag="PER">PERSON</button>
+            <button data-tag="ORG">ORGANIZATION</button>
+            <button data-tag="GPE">GEOPOLITICAL</button>
+            <button data-tag="GEO">GEOGRAPHICAL</button>
+            <button data-tag="ART">ARTIFACT</button>
+            <button data-tag="NAT">NATURAL PHENO</button>
+            <button data-tag="EVE">EVENT</button>
+            <button data-tag="TIM">TIME INDICATOR</button>
+        </div>
+    </div>
+    <div id="output">
+        <h4 style="margin-left: 20px;">Tagged Words</h4>
+        <div id="outputbox"></div>
+        <br>
+    </div>
+    <div id="database-section"> 
+        <h2>Database Entries</h2>
+        <label for="table-select">Select Table:</label>
+        <select id="table-select">
+            <option value="">-- Select Table --</option>
+            {% for table_name in table_names %}
+                <option value="{{ table_name }}">{{ table_name }}</option>
+            {% endfor %}
+        </select>
+
+        <table id="database-table">
+            <thead>
+                <tr id="table-header">
+                    <!-- Table header will be populated dynamically -->
+                </tr>
+            </thead>
+            <tbody id="database-entries">
+                <!-- Table rows will be populated dynamically -->
+            </tbody>
+        </table>
+    </div>
+    </div>
+    <div id="tag-table-container">
+        <!-- <h2 style="position: fixed;">Tagged Words Table</h2> -->
+        <h2>Tagged Words table</h2>
+        <table id="tag-table">
+            <thead>
+                <tr>
+                    <th>Word</th>
+                    <th>Tag</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="tag-table-body">
+                <!-- Tag Table rows will be populated dynamically -->
+                {% for tag in tags %}
+                    <tr>
+                        <td>{{ tag.word }}</td>
+                        <td>{{ tag.tag }}</td>
+                        <td>
+                            <button class="update-btn" data-word="{{ tag.word }}" data-tag="{{ tag.tag }}">Update</button>
+                            <button class="delete-btn" data-id="{{ tag.id }}">Delete</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    </div>
+
+    <script>
+        let selectedWord = null;
+        let selectedTag = null;
+        const taggedWords = [];
+        const undoStack = [];
+        let sentences = [];
+        let currentSentenceIndex = 0;
+
+
+        function refreshTagTable() {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', '/fetch-tag-table/', true);
+
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            const data = JSON.parse(xhr.responseText);
+            const tableBody = document.getElementById('tag-table-body');
+tableBody.innerHTML = ''; // Clear existing table rows
+
+data.forEach(row => {
+    const tableRow = document.createElement('tr');
+    
+    // Word cell
+    const wordCell = document.createElement('td');
+    wordCell.textContent = row.word;
+    tableRow.appendChild(wordCell);
+
+    // Tag cell
+    const tagCell = document.createElement('td');
+    tagCell.textContent = row.tag;
+    tableRow.appendChild(tagCell);
+    
+    // Actions cell
+    const actionsCell = document.createElement('td');
+
+    // Create update button
+    const updateButton = document.createElement('button');
+    updateButton.classList.add('update-btn');
+    updateButton.textContent = 'Update';
+    updateButton.setAttribute('data-word', row.word);
+    updateButton.setAttribute('data-tag', row.tag);
+    actionsCell.appendChild(updateButton);
+
+    // Create delete button
+    const deleteButton = document.createElement('button');
+    deleteButton.classList.add('delete-btn');
+    deleteButton.textContent = 'Delete';
+    deleteButton.setAttribute('data-id', row.id); // Ensure row.id exists in your data
+    actionsCell.appendChild(deleteButton);
+
+    // Append actions cell to the row
+    tableRow.appendChild(actionsCell);
+    
+    // Append the completed row to the table body
+    tableBody.appendChild(tableRow);
+});
+
+        } else {
+            console.error('Failed to fetch tag table data:', xhr.statusText);
+        }
+    };
+
+    xhr.send();
+}
+
+function fetchTagTableData() {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', '/fetch-tag-table/', true);
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            const data = JSON.parse(xhr.responseText);
+            const tagTableBody = document.getElementById('tag-table-body');
+            tagTableBody.innerHTML = ''; // Clear existing rows
+
+            data.forEach(row => {
+                const tableRow = document.createElement('tr');
+
+                // Word cell
+                const wordCell = document.createElement('td');
+                wordCell.textContent = row.word;
+                tableRow.appendChild(wordCell);
+
+                // Tag cell
+                const tagCell = document.createElement('td');
+                tagCell.textContent = row.tag;
+                tableRow.appendChild(tagCell);
+
+                // Actions cell
+                const actionsCell = document.createElement('td');
+
+                // Create update button
+                const updateButton = document.createElement('button');
+                updateButton.classList.add('update-btn');
+                updateButton.textContent = 'Update';
+                updateButton.setAttribute('data-word', row.word);
+                updateButton.setAttribute('data-tag', row.tag);
+                actionsCell.appendChild(updateButton);
+
+                // Create delete button
+                const deleteButton = document.createElement('button');
+                deleteButton.classList.add('delete-btn');
+                deleteButton.textContent = 'Delete';
+                deleteButton.setAttribute('data-id', row.id); // Ensure row.id exists in your data
+                actionsCell.appendChild(deleteButton);
+
+                // Append actions cell to the row
+                tableRow.appendChild(actionsCell);
+                
+                // Append the completed row to the table body
+                tagTableBody.appendChild(tableRow);
+            });
+        } else {
+            console.error('Failed to fetch tag table data:', xhr.statusText);
+        }
+    };
+    xhr.send();
+}
+
+fetchTagTableData();
+
+document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('update-btn')) {
+        const id = event.target.getAttribute('data-id');
+        const word = event.target.getAttribute('data-word');
+        const tag = event.target.getAttribute('data-tag');
+        const newTag = prompt('Enter new tag for ' + word, tag);
+        
+        if (newTag !== null) { // Check if user clicked "Cancel"
+            console.log('Updating tag:', { word, newTag });
+            updateTag(word, newTag);
+        }
+    }
+
+    if (event.target.classList.contains('delete-btn')) {
+        const word = event.target.getAttribute('data-id');
+        if (confirm('Are you sure you want to delete this tag?')) {
+            console.log('Deleting tag with ID:', word);
+            deleteTag(word);
+        }
+    }
+});
+
+function updateTag(word, newTag) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/update-tag/', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
+
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            console.log('Tag updated successfully');
+            alert('Tag updated successfully!');
+            fetchTagTableData(); // Refresh the tag table
+        } else {
+            console.error('Failed to update tag:', xhr.responseText);
+            alert('Failed to update tag: ' + xhr.responseText);
+        }
+    };
+
+    xhr.onerror = function () {
+        console.error('Request failed');
+        alert('An error occurred while updating the tag.');
+    };
+
+    xhr.send(JSON.stringify({ word: word, new_tag: newTag }));
+}
+
+
+
+
+function deleteTag(word) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('DELETE', '/delete-tag/' + word + '/', true);
+    xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
+
+    xhr.onload = function () {
+        if (xhr.status === 204) {
+            console.log('Tag deleted successfully');
+            alert('Tag deleted successfully!');
+            fetchTagTableData(); // Refresh the tag table
+        } else {
+            console.error('Failed to delete tag', xhr.status, xhr.responseText);
+            alert('Failed to delete tag: ' + xhr.responseText);
+        }
+    };
+
+    xhr.onerror = function () {
+        console.error('Request failed');
+        alert('An error occurred while deleting the tag.');
+    };
+
+    xhr.send();
+}
+
+        
+ 
+        document.getElementById('tag-ner-btn').addEventListener('click', function () {
+            const text = document.getElementById('input-box').innerText.trim();
+            sentences = text.match(/[^.!?]+[.!?]*/g) || [];
+            saveSentencesToDB(sentences);
+            displaySentence(sentences[0]);
+            document.getElementById('sentence-box').style.display = 'block';
+            document.getElementById('sentence-update-btn').style.display = 'inline-block';
+        });
+
+        function saveSentencesToDB(sentences) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/save-sentences/', true);
+>>>>>>> 155ac80366fd9f0aea0023d87e440b36dca5cdec
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
 
             xhr.onload = function () {
                 if (xhr.status === 200) {
                     console.log('Sentences saved successfully');
+<<<<<<< HEAD
                     // Redirect to the main1 page after saving sentences
                     window.location.href = '/tagger/main1/';
+=======
+>>>>>>> 155ac80366fd9f0aea0023d87e440b36dca5cdec
                 } else {
                     console.error('Failed to save sentences');
                 }
             };
 
+<<<<<<< HEAD
             // Send sentences as a JSON payload to the server
             xhr.send(JSON.stringify({ sentences }));
         }
 
         // Helper function to get the CSRF token from cookies
+=======
+            xhr.send(JSON.stringify({ sentences }));
+        }
+
+        function displaySentence(sentence) {
+            const sentenceBox = document.getElementById('sentence-box');
+            sentenceBox.innerHTML = '';
+
+            const words = sentence.trim().match(/\S+|\s+/g).filter(word => word.trim() !== '');
+            words.forEach((word, index) => {
+                const span = document.createElement('span');
+                span.textContent = word + ' ';
+                span.classList.add('word');
+                span.style.cursor = 'pointer';
+                span.setAttribute('data-index', index);
+                span.setAttribute('data-tag', 'O'); // Set default tag to 'O'
+
+                // Add the word to taggedWords array with 'O' tag, but don't display it in output
+                taggedWords.push({ word, tag: 'O', index }); 
+
+                span.addEventListener('click', function () {
+                    if (selectedWord) {
+                        selectedWord.classList.remove('highlight');
+                    }
+                    span.classList.add('highlight');
+                    selectedWord = span;
+                });
+
+                sentenceBox.appendChild(span);
+            });
+        }
+
+        document.querySelectorAll('#entity-tags button[data-tag]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (!selectedWord) return alert('Please select a word');
+
+                const tagPrefix = document.querySelector('button[data-prefix].active')?.getAttribute('data-prefix') || 'O';
+                selectedTag = tagPrefix + '-' + btn.getAttribute('data-tag');
+                tagSelectedWord();
+            });
+        });
+
+        document.querySelectorAll('.prefix-button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.prefix-button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+
+        function tagSelectedWord() {
+            if (!selectedTag) return;
+            const word = selectedWord.textContent.trim();
+            const index = selectedWord.getAttribute('data-index');
+
+            // Update the tag of the word
+            const previousTag = selectedWord.getAttribute('data-tag');
+            selectedWord.setAttribute('data-tag', selectedTag);
+
+            // Update the tag in the taggedWords array
+            const wordToUpdate = taggedWords.find(t => t.index === parseInt(index, 10));
+            if (wordToUpdate) {
+                wordToUpdate.tag = selectedTag;
+            }
+
+            // Update the display in the output box if the previous tag was not 'O'
+            if (previousTag !== 'O') { 
+                updateTaggedWordInOutput(word, previousTag, selectedTag); 
+            } else {
+                // If the previous tag was 'O', we're tagging it for the first time, so add it to output
+                addTaggedWordToOutput(`<${selectedTag}>${word}</${selectedTag}>`, word, selectedTag);
+            }
+
+            selectedWord.classList.add('tagged');
+            selectedWord.classList.remove('highlight');
+
+            selectedWord = null;
+            document.getElementById('undo-btn').style.display = 'inline-block';
+        }
+
+        function updateTaggedWordInOutput(word, oldTag, newTag) {
+            const outputBox = document.getElementById('outputbox');
+            const taggedWordSpans = outputBox.querySelectorAll('.tagged-word');
+
+            taggedWordSpans.forEach(span => {
+                if (span.textContent.includes(word) && span.textContent.includes(`[${oldTag}]`)) {
+                    span.innerHTML = `${word} <span class="tag-display">[${newTag}]</span>`;
+                }
+            });
+        }
+
+
+        function addTaggedWordToOutput(taggedWord, word, tag) {
+            const outputBox = document.getElementById('outputbox');
+            const span = document.createElement('span');
+            span.innerHTML = `${word} <span class="tag-display">[${tag}]</span>`;
+            span.classList.add('tagged-word');
+            outputBox.appendChild(span);
+            outputBox.appendChild(document.createTextNode(' '));
+        }
+
+        document.getElementById('sentence-update-btn').addEventListener('click', function () {
+            saveTaggedWordsToDB();
+            currentSentenceIndex++;
+            if (currentSentenceIndex < sentences.length) {
+                displaySentence(sentences[currentSentenceIndex]);
+            } else {
+                alert('All sentences have been tagged!');
+                resetTagging();
+            }
+        });
+
+        function saveTaggedWordsToDB() {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/save-tagged-words/', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
+
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    console.log('Tagged words saved successfully');
+                    refreshTagTable();
+                } else {
+                    console.error('Failed to save tagged words', xhr.responseText);
+                }
+            };
+
+            // Prepare data for sending
+            const taggedData = taggedWords.map(item => ({
+                word: item.word,
+                tag: item.tag,
+                sentence: sentences[currentSentenceIndex] // Send the actual sentence text
+            }));
+
+            xhr.send(JSON.stringify({ tagged_words: taggedData }));
+            taggedWords.length = 0;
+        }
+
+        document.addEventListener('keydown', function(event) {
+            // Get the pressed key
+            const keyPressed = event.key.toUpperCase();
+
+            // Check if the pressed key is one of the prefix keys (B, I, L, O, U)
+            if (['B', 'I', 'L', 'O', 'U'].includes(keyPressed)) {
+                // Find the corresponding prefix button
+                const prefixButton = document.querySelector(`.prefix-button[data-prefix="${keyPressed}"]`);
+
+                // Simulate a click event on the prefix button
+                if (prefixButton) {
+                    prefixButton.click();
+                }
+            }
+        });
+
+        document.getElementById('undo-btn').addEventListener('click', function () {
+            if (undoStack.length === 0) return alert('Nothing to undo');
+
+            const lastAction = undoStack.pop();
+            const { word, tag } = lastAction;
+
+            // Find the corresponding span in the sentence box
+            const sentenceBox = document.getElementById('sentence-box');
+            const taggedWordElement = Array.from(sentenceBox.querySelectorAll('.word')).find(span => span.textContent.trim() === word);
+            if (taggedWordElement) {
+                taggedWordElement.classList.remove('tagged');
+                taggedWordElement.removeAttribute('data-tag');
+            }
+
+            const outputBox = document.getElementById('outputbox');
+            const taggedWordDisplay = Array.from(outputBox.querySelectorAll('.tagged-word')).find(span => span.textContent.includes(word));
+            if (taggedWordDisplay) {
+                outputBox.removeChild(taggedWordDisplay);
+            }
+
+            // Remove from taggedWords array
+            const indexToRemove = taggedWords.findIndex(t => t.word === word && t.tag === tag);
+            if (indexToRemove > -1) {
+                taggedWords.splice(indexToRemove, 1);
+            }
+
+            if (undoStack.length === 0) {
+                document.getElementById('undo-btn').style.display = 'none'; // Hide undo button if nothing to undo
+            }
+        });
+
+>>>>>>> 155ac80366fd9f0aea0023d87e440b36dca5cdec
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -186,6 +780,35 @@ document.getElementById('tag-ner-btn').addEventListener('click', function () {
             }
             return cookieValue;
         }
+<<<<<<< HEAD
+=======
+
+        function resetTagging() {
+            document.getElementById('input-box').innerText = '';
+            document.getElementById('outputbox').innerHTML = '';
+            taggedWords.length = 0;
+            currentSentenceIndex = 0;
+            document.getElementById('sentence-box').style.display = 'none';
+            document.getElementById('sentence-update-btn').style.display = 'none';
+            document.getElementById('undo-btn').style.display = 'none';
+            undoStack.length = 0;
+        }
+        // Event listener for the database table dropdown
+document.getElementById('table-select').addEventListener('change', function () {
+    const selectedTable = this.value;
+    refreshDatabaseEntries(selectedTable);
+});
+
+// Event listener for the "Show Database Tables" dropdown
+document.getElementById('show-db-select').addEventListener('change', function () {
+    if (this.value === 'show') {
+        document.getElementById('database-section').style.display = 'block';
+    } else {
+        document.getElementById('database-section').style.display = 'none';
+    }
+}); 
+document.addEventListener('DOMContentLoaded', loadTagTable);
+>>>>>>> 155ac80366fd9f0aea0023d87e440b36dca5cdec
     </script>
   </body>
 </html>

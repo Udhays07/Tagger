@@ -1,18 +1,30 @@
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 from django.http import JsonResponse
 from django.db import transaction
 from .models import NER, Tag, Sentence
 import json
+from django.http import JsonResponse, HttpResponse
+import logging
 
+<<<<<<< HEAD
 # This view saves the sentences, splits the text, and stores them in the database
 @csrf_exempt
 def ner_save_sentences(request):
+=======
+# Set up logging
+logger = logging.getLogger(__name__)
+
+@csrf_exempt
+def save_sentences(request):
+>>>>>>> 155ac80366fd9f0aea0023d87e440b36dca5cdec
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
             sentences = data.get('sentences', [])
 
+<<<<<<< HEAD
             # Save each sentence to the database and store the sentence texts in session
             saved_sentences = []
             for sentence_text in sentences:
@@ -24,6 +36,11 @@ def ner_save_sentences(request):
 
             # Store the sentence IDs in the session for use in main1.html
             request.session['saved_sentences'] = saved_sentences
+=======
+            # Save each sentence to the database
+            for sentence_text in sentences:
+                Sentence.objects.create(text=sentence_text)
+>>>>>>> 155ac80366fd9f0aea0023d87e440b36dca5cdec
 
             return JsonResponse({'message': 'Sentences saved successfully'}, status=200)
         except Exception as e:
@@ -64,7 +81,10 @@ def save_tagged_words(request):
             return JsonResponse({'error': 'Failed to save tagged words', 'details': str(e)}, status=500)
 
     return JsonResponse({'error': 'Invalid request method'}, status=405)
+<<<<<<< HEAD
 
+=======
+>>>>>>> 155ac80366fd9f0aea0023d87e440b36dca5cdec
 def index(request):
     ner_entries = list(NER.objects.values('word', 'tag__name'))  # Fetch tag name directly
     return render(request, 'tagger/index.html', {'ner_entries': json.dumps(ner_entries)})
@@ -74,6 +94,7 @@ def fetch_tag_table(request):
     data = [{'word': entry['word'], 'tag': entry['tag__name']} for entry in tag_entries]
     return JsonResponse(data, safe=False)
 
+<<<<<<< HEAD
 # This is the index view that renders the first page, displaying the NER entries
 # def index(request):
 #     # Fetch existing NER entries for display
@@ -126,3 +147,36 @@ def update_sentence_index(request):
 # This is the main index page view
 def tagger_index(request):
     return render(request, 'tagger/index.html')
+=======
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def update_tag(request):
+    try:
+        data = json.loads(request.body)
+        word = data.get("word")
+        new_tag_name = data.get("new_tag")
+        
+        # Find the tag and update it
+        ner_instance = NER.objects.get(word=word)
+        tag, created = Tag.objects.get_or_create(name=new_tag_name)
+        ner_instance.tag = tag
+        ner_instance.save()
+        
+        return JsonResponse({"status": "success", "message": "Tag updated successfully."}, status=200)
+    except NER.DoesNotExist:
+        return JsonResponse({"status": "error", "message": "Word not found."}, status=404)
+    except Exception as e:
+        return JsonResponse({"status": "error", "message": str(e)}, status=500)
+@csrf_exempt
+@require_http_methods(["DELETE"])
+def delete_tag(request, id):
+    try:
+        ner_instance = NER.objects.get(id=id)
+        ner_instance.delete()
+        return JsonResponse({"status": "success", "message": "Tag deleted successfully."}, status=204)
+    except NER.DoesNotExist:
+        return JsonResponse({"status": "error", "message": "Tag not found."}, status=404)
+    except Exception as e:
+        return JsonResponse({"status": "error", "message": str(e)}, status=500)
+>>>>>>> 155ac80366fd9f0aea0023d87e440b36dca5cdec

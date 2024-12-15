@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from django.db import models, transaction
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
@@ -5,6 +6,15 @@ from django.dispatch import receiver
 class Sentence(models.Model):
     text = models.TextField(unique=True)
     order = models.IntegerField(unique=True, blank=True, null=True)  # Added order field to keep track of sentence order
+
+    def __str__(self):
+        return self.text
+=======
+from django.db import models
+>>>>>>> 155ac80366fd9f0aea0023d87e440b36dca5cdec
+
+class Sentence(models.Model):
+    text = models.TextField()
 
     def __str__(self):
         return self.text
@@ -21,6 +31,7 @@ class NER(models.Model):
     sentence = models.ForeignKey('Sentence', on_delete=models.CASCADE, related_name='ners')
 
     def __str__(self):
+<<<<<<< HEAD
         return f"{self.word} - {self.tag.name} in {self.sentence.text}"
     
 @receiver(pre_save, sender=Sentence)
@@ -31,3 +42,6 @@ def set_order(sender, instance, **kwargs):
             # Get the highest `order` value and assign the next value
             max_order = Sentence.objects.aggregate(models.Max('order'))['order__max']
             instance.order = (max_order or 0) + 1
+=======
+        return f"{self.word} - {self.tag.name} in {self.sentence.text}"
+>>>>>>> 155ac80366fd9f0aea0023d87e440b36dca5cdec

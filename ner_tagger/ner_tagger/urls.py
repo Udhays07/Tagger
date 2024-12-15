@@ -16,18 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-# from . import views
 
 urlpatterns = [
-<<<<<<< HEAD
-    path('admin/', admin.site.urls),
-    # path('tagger/', views.home, name='home'),  
-    path('tagger/', include('tagger.urls')), 
-    # path('tagger/', views.home, name='home'), 
-    path('', include('pos_tagger.urls')),  
-=======
     path("admin/", admin.site.urls),
     path("", include("tagger.urls")),
-    path("postagger/", include("postagger.urls")),
->>>>>>> 155ac80366fd9f0aea0023d87e440b36dca5cdec
 ]
