@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NER Tagger</title>
+    <style>
+        body {
+            height: 100vh;
+            width: 100vw;
+            background-color: #fff;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .header {
+            width: 100%;
+            height: 14%;
+            flex-direction: column;
+            position: fixed;
+        }
+        .main-header {
+            height: 55%;
+            width: 100%;
+            background-color: #084594;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: 27px;
+        }
+        .navbar {
+            height: 45%;
+            width: 100%;
+            display: flex;
+        }
+        .pos-navbar {
+            text-decoration: none;
+            height: 100%;
+            width: 50%;
+            background-color: #d2d2d2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: black;
+            font-size: 24px;
+        }
+        .ner-navbar {
+            text-decoration: none;
+            height: 100%;
+            width: 50%;
+            background-color: #2171b5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+        }
+        .body {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            flex: 1;
+            margin-top: 30px;
+        }
+
+        #main-container {
+            display: flex;
+            width: 100%;
+            max-width: 1400px;
+        }
+
+        #sent-box {
+            display: flex;
+            flex-direction: column;
+            width: 48%;
+            border-radius: 10px;
+            margin-right: 40px;
+        }
+
+        #sentence-box {
+            /* height: 100%; */
+            width: 100%;
+            margin-bottom: 20px;
+            background-color: #cad6e7;
+            border-radius: 5px;
+            border: 1px solid #a0b4cc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #sentence-update-btn {
+            width: 50%;
+            padding: 10px;
+            background-color: #084594;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            border: 2px solid #084594;
+        }
+
+        #sentence-update-btn:hover {
+            background-color: white;
+            color: #084594;
+        }
+
+        #tags {
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            width: 50%;
+            padding-top: 20px;
+            border-radius: 10px;
+        }
+
+        #entity-tags, #tags-table {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .prefix-button {
+            height: 30px;
+            align-items: center;
+        }
+
+        .prefix-button, #tags-table button {
+            background-color: #084594;
+            color: white;
+            border-radius: 5px;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: center;
+            display: flex;
+            border: 2px solid #084594;
+        }
+
+        #tags-table button {
+            height: 40px;
+            width: 200px;
+        }
+
+        #undo-btn {
+            background-color: #084594;
+            color: white;
+            border-radius: 5px;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            background-color: #e11d48;
+            color: white;
+            border: 2px solid #e11d48;
+        }
+
+        #undo-btn:hover {
+            background-color: white;
+            color: #e11d48;
+        }
+
+        #output {
+            padding: 100px;
+            align-items: center;
+            border-radius: 10px;
+        }
+
+        #outputbox {
+            width: 1400px;
+            height: 150px;
+            margin-bottom: 20px;
+            background-color: #cad6e7;
+            border-radius: 5px;
+            border: 1px solid #a0b4cc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #download-btn {
+            background-color: #084594;
+            color: white;
+            border-radius: 5px;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            background-color: #084594;
+            color: white;
+        }
+
+        #download-btn:hover {
+            color: #084594;
+            background-color: white;
+            border: 2px solid #084594;
+        }
+
+        #sentence-box {
+            display: inline-flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            background-color: #cad6e7;
+            border-radius: 5px;
+            border: 1px solid #a0b4cc;
+            padding: 10px;
+        }
+
+        .highlight {
+            border: 2px solid #084594;
+            border-radius: 2px;
+        }
+
+        .active-prefix {
+            background-color: white;
+            color: #084594;
+        }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div class="main-header">Tagger</div>
+      <div class="navbar">
+        <a href="{% url 'pos_tagger_index' %}" class="pos-navbar"><div>PoS Tagger</div></a>
+        <a href="{% url 'tagger_index' %}" class="ner-navbar"><div>NER Tagger</div></a>
+      </div>
+      <div class="body">
+        <div id="main-container">
+            <div id="sent-box">
+                <div id="sentence-box"></div>
+                <button id="sentence-update-btn">Update and Next Sentence</button>
+            </div>
+
+            <div id="tags">
+                <span>Select Prefix:</span>
+                <div id="entity-tags">
+                    <button data-prefix="B" class="prefix-button">B</button>
+                    <button data-prefix="I" class="prefix-button">I</button>
+                    <button data-prefix="L" class="prefix-button">L</button>
+                    <button data-prefix="O" class="prefix-button">O</button>
+                    <button data-prefix="U" class="prefix-button">U</button>
+                </div>
+
+                <div id="tags-table">
+                    <button data-tag="PER">PERSON</button>
+                    <button data-tag="ORG">ORGANIZATION</button>
+                    <button data-tag="GPE">GEOPOLITICAL</button>
+                    <button data-tag="GEO">GEOGRAPHICAL</button>
+                    <button data-tag="ART">ARTIFACT</button>
+                    <button data-tag="NAT">NATURAL PHENO</button>
+                    <button data-tag="EVE">EVENT</button>
+                    <button data-tag="TIM">TIME INDICATOR</button>
+                </div>
+                <button id="undo-btn">Undo</button>
+            </div>
+        </div>
+        <div id="output">
+            <div id="outputbox"></div>
+            <button id="download-btn">Download</button>
+        </div>
+    </div>
+    </div>
+</body>
+<script>
+let selectedWord = null;
+let selectedTag = null;
+const taggedWords = [];
+const undoStack = [];
+let sentences = JSON.parse('{{ sentences|escapejs }}' || '[]');  // Dynamically loaded sentences from Django context
+let currentSentenceIndex = {{ sentence_index }};  // Initial sentence index passed from the Django context
+
+// Display the first sentence on page load
+displaySentence(sentences[currentSentenceIndex]);
+
+document.getElementById('sentence-update-btn').addEventListener('click', function () {
+    saveTaggedWordsToDB();
+    currentSentenceIndex++;  // Move to the next sentence
+    if (currentSentenceIndex < sentences.length) {
+        displaySentence(sentences[currentSentenceIndex]);
+        updateSentenceIndexOnServer(currentSentenceIndex);  // Update sentence index in the backend
+    } else {
+        alert('All sentences have been tagged!');
+        window.location.href = '{% url "index" %}';  // Redirect to index.html
+    }
+});
+
+// Function to display a sentence in the sentence box
+function displaySentence(sentence) {
+    const sentenceBox = document.getElementById('sentence-box');
+    sentenceBox.innerHTML = '';  // Clear the previous sentence content
+
+    const words = sentence.trim().match(/\S+|\s+/g).filter(word => word.trim() !== '');
+    words.forEach((word, index) => {
+        const span = document.createElement('span');
+        span.textContent = word;
+        span.classList.add('word');
+        span.style.cursor = 'pointer';
+        span.setAttribute('data-index', index);
+        span.setAttribute('data-tag', 'O');  // Default tag is 'O'
+        taggedWords.push({ word, tag: 'O', index });
+
+        span.addEventListener('click', function () {
+            if (selectedWord) {
+                selectedWord.classList.remove('highlight');
+            }
+            span.classList.add('highlight');
+            selectedWord = span;
+        });
+
+        sentenceBox.appendChild(span);
+    });
+}
+
+// Function to send tagged words to the server for saving
+function saveTaggedWordsToDB() {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/tagger/save-tagged-words/', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
+
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            console.log('Tagged words saved successfully');
+        } else {
+            console.error('Failed to save tagged words', xhr.responseText);
+        }
+    };
+
+    // Prepare data for sending
+    const taggedData = taggedWords.map(item => ({
+        word: item.word,
+        tag: item.tag,
+        sentence: sentences[currentSentenceIndex] // Send the actual sentence text
+    }));
+
+    xhr.send(JSON.stringify({ tagged_words: taggedData }));
+    taggedWords.length = 0;  // Clear tagged words array after sending
+}
+
+// Event listeners for tag buttons (prefix buttons)
+document.querySelectorAll('.prefix-button').forEach(button => {
+    button.addEventListener('click', function () {
+        if (selectedTag) {
+            document.querySelector(`[data-prefix="${selectedTag}"]`).classList.remove('active-prefix');
+        }
+        selectedTag = button.dataset.prefix;
+        button.classList.add('active-prefix');
+    });
+});
+
+// Event listeners for entity tags
+document.querySelectorAll('#tags-table button').forEach(button => {
+    button.addEventListener('click', function () {
+        if (selectedWord && selectedTag) {
+            const wordIndex = selectedWord.getAttribute('data-index');
+            const word = sentences[currentSentenceIndex].split(' ')[wordIndex];
+            const tag = selectedTag + '-' + button.dataset.tag;
+
+            // Store the previous tag in the undo stack
+            const previousTag = taggedWords[wordIndex].tag;
+            undoStack.push({ index: wordIndex, previousTag });
+
+            taggedWords[wordIndex].tag = tag;
+            selectedWord.setAttribute('data-tag', tag);
+            updateOutputBox();
+        }
+    });
+});
+
+// Undo button functionality
+document.getElementById('undo-btn').addEventListener('click', function () {
+    if (undoStack.length > 0) {
+        const lastAction = undoStack.pop();
+        const wordIndex = lastAction.index;
+
+        // Revert the word's tag to the previous tag
+        taggedWords[wordIndex].tag = lastAction.previousTag;
+        const wordElement = document.querySelector(`[data-index="${wordIndex}"]`);
+        wordElement.setAttribute('data-tag', lastAction.previousTag);
+
+        updateOutputBox();
+    }
+});
+
+// Update the output box
+function updateOutputBox() {
+    const outputBox = document.getElementById('outputbox');
+    outputBox.innerHTML = taggedWords
+        .map(item => `<span class="tagged-word">${item.word} (${item.tag})</span>`)
+        .join(' ');
+}
+
+// Helper function to get CSRF token
+function getCookie(name) {
+    const cookieValue = document.cookie
+        .split('; ')
+        .find(row => row.startsWith(name + '='))
+        .split('=')[1];
+    return cookieValue;
+}
+
+// Update the sentence index on the server
+function updateSentenceIndexOnServer(index) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/tagger/update-sentence-index/', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
+    xhr.send(JSON.stringify({ sentence_index: index }));
+}
+document.getElementById('download-btn').addEventListener('click', function () {
+    const xmlContent = generateXML(taggedWords);
+    downloadXML(xmlContent, 'tagged_words.xml');
+});
+
+// Function to generate XML from tagged words
+function generateXML(taggedWords) {
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<sentences>\n';
+
+    let currentSentenceIndex = 0;
+    let sentenceXML = '';
+
+    // Iterate through each word, creating a new sentence for each group
+    taggedWords.forEach(item => {
+        if (!sentenceXML) {
+            sentenceXML = '  <sentence>\n';  // Start a new sentence tag
+        }
+        
+        // Add word and its corresponding tag
+        sentenceXML += `    <word>\n      <text>${escapeXML(item.word)}</text>\n      <tag>${escapeXML(item.tag)}</tag>\n    </word>\n`;
+
+        // Check if it's the last word of the sentence (based on your sentence structure or a delimiter like period/full stop)
+        if (item.word.endsWith('.') || item === taggedWords[taggedWords.length - 1]) {
+            sentenceXML += '  </sentence>\n';  // Close sentence tag
+            xml += sentenceXML;  // Add sentence to the XML
+            sentenceXML = '';  // Reset for the next sentence
+        }
+    });
+
+    xml += '</sentences>';
+    return xml;
+}
+
+// Function to escape special XML characters
+function escapeXML(str) {
+    return str.replace(/[<>&'"]/g, function (char) {
+        switch (char) {
+            case '<': return '&lt;';
+            case '>': return '&gt;';
+            case '&': return '&amp;';
+            case '\'': return '&apos;';
+            case '"': return '&quot;';
+        }
+    });
+}
+
+// Function to trigger the download of XML file
+function downloadXML(xmlContent, filename) {
+    const blob = new Blob([xmlContent], { type: 'application/xml' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+}
+
+</script>
+</html>

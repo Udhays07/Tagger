@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NER Tagger</title>
+    <title>POS Tagger</title>
     <style>
         body {
             height: 100vh;
@@ -35,9 +35,8 @@
             width: 100%;
             display: flex;
         }
-        .ner-navbar {
+        .pos-navbar {
             text-decoration: none;
-            border: none;
             height: 100%;
             width: 50%;
             background-color: #2171b5;
@@ -47,9 +46,8 @@
             color: #fff;
             font-size: 24px;
         }
-        .pos-navbar {
+        .ner-navbar {
             text-decoration: none;
-            border: none;
             height: 100%;
             width: 50%;
             background-color: #d2d2d2;
@@ -80,26 +78,27 @@
             border-radius: 5px;
         }
         #input-box {
+            padding: 10px;
             height: 100%;
             width: 100%;
             background-color: #cad6e7;
             border-color: #cad6e7;
             border-radius: 5px;
-            padding: 10px;
         }
-        #tag-ner-btn {
+        #tag-pos-btn {
             margin-left: 170px;
             width: 10%;
             height: 6%;
             -webkit-text-fill-color: white;
+            background-color: #084594;
             border: none;
             border-radius: 5px;
             background-color: #084594;
             border: 2px solid #084594;
-            cursor: pointer;
         }
 
-        #tag-ner-btn:hover{
+        #tag-pos-btn:hover{
+            cursor: pointer;
             background-color: white;
             -webkit-text-fill-color: #084594;
         }
@@ -109,7 +108,7 @@
             background-color: #084594;
             color: #fff;
             border-radius: 5px;
-            border-color: #084594;
+            border-color: #084594;
         }
     </style>
   </head>
@@ -123,69 +122,66 @@
     </div>
     <div class="body">
       <div class="text-area">
-        <!-- Use contenteditable to allow input, but it's better to use textarea for simplicity -->
         <div id="input-box" contenteditable="true" placeholder="Enter your text here"></div>
       </div>
-      <button id="tag-ner-btn">Tag NER</button>
+      <button id="tag-pos-btn">Tag PoS</button>
     </div>
 
-    <script>
-        let sentences = [];
+<script>
+let sentences = [];
 
-// Handle button click to extract sentences and save them
-document.getElementById('tag-ner-btn').addEventListener('click', function () {
+document.getElementById('tag-pos-btn').addEventListener('click', function () {
     const text = document.getElementById('input-box').innerText.trim();
 
-    // Check if the input is empty
     if (text === '') {
         alert('Input text to tag');
         return;  // Stop further execution
     }
 
-    // Split text into sentences (using regex to detect sentence-ending punctuation)
     sentences = text.match(/[^.!?]+[.!?]*/g) || [];
-
-    // Call function to send sentences to the server
     saveSentencesToDB(sentences);
 });
 
+// Function to send the sentences to the server to be saved
+function saveSentencesToDB(sentences) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/pos-save-sentences/', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
 
-        // Function to save sentences to the database (via a POST request)
-        function saveSentencesToDB(sentences) {
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', '/tagger/ner-save-sentences/', true);
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
-
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    console.log('Sentences saved successfully');
-                    // Redirect to the main1 page after saving sentences
-                    window.location.href = '/tagger/main1/';
-                } else {
-                    console.error('Failed to save sentences');
-                }
-            };
-
-            // Send sentences as a JSON payload to the server
-            xhr.send(JSON.stringify({ sentences }));
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            console.log('Sentences saved successfully');
+            // Redirect to index1 after saving the sentences
+            window.location.href = '/main/';  // This redirects to the index1 page
+        } else {
+            console.error('Failed to save sentences');
         }
+    };
 
-        // Helper function to get the CSRF token from cookies
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
+    // Send the sentences as a JSON string to the server
+    xhr.send(JSON.stringify({ sentences }));
+}
+
+// Helper function to get CSRF token from cookies
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
             }
-            return cookieValue;
         }
-    </script>
-  </body>
+    }
+    return cookieValue;
+}
+
+// document.querySelector('.ner-navbar').addEventListener('click', function() {
+//             window.location.href = '{% url "pos_index" %}';  
+// });
+</script>
+</body>
 </html>

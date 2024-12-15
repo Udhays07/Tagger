@@ -2,12 +2,11 @@ from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.db import transaction
-from .models import NER, Tag, Sentence
+from .models import POS, Tag, Sentence, NounChunk
 import json
 
-# This view saves the sentences, splits the text, and stores them in the database
 @csrf_exempt
-def ner_save_sentences(request):
+def pos_save_sentences(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -36,11 +35,12 @@ def save_tagged_words(request):
         try:
             data = json.loads(request.body)
             tagged_words = data.get('tagged_words')
+            noun_chunks = data.get('noun_chunks', [])  # Add noun chunks info here
 
             if not tagged_words:
                 return JsonResponse({'error': 'No tagged words received'}, status=400)
 
-            with transaction.atomic():  
+            with transaction.atomic():
                 for tagged_word in tagged_words:
                     word = tagged_word.get('word')
                     tag_name = tagged_word.get('tag')
@@ -49,41 +49,61 @@ def save_tagged_words(request):
                     if not word or not tag_name or not sentence_text:
                         return JsonResponse({'error': 'Invalid tagged word data'}, status=400)
 
-                    # Get the Sentence object, creating it if it doesn't exist
+                    # Get or create the Sentence object
                     sentence, created = Sentence.objects.get_or_create(text=sentence_text)
 
-                    # Get the Tag object, creating it if it doesn't exist
+                    # Get or create the Tag object
                     tag, created = Tag.objects.get_or_create(name=tag_name)
 
-                    # Create the NER entry
-                    NER.objects.create(word=word, tag=tag, sentence=sentence)
+                    # Create the POS entry
+                    POS.objects.create(word=word, tag=tag, sentence=sentence)
 
-            return JsonResponse({'message': 'Tagged words saved successfully'}, status=200)
+                # Handle the creation of noun chunks
+                for chunk in noun_chunks:
+                    sentence_text = chunk.get('sentence')
+                    chunk_words = chunk.get('words')  # List of word IDs that form the noun chunk
+                    
+                    if not sentence_text or not chunk_words:
+                        continue  # Skip invalid chunks
+
+                    # Get the sentence object for the noun chunk
+                    sentence = Sentence.objects.get(text=sentence_text)
+
+                    # Fetch POS objects based on the word IDs
+                    pos_objects = POS.objects.filter(id__in=chunk_words)
+
+                    # Create a new noun chunk
+                    noun_chunk_text = " ".join([pos.word for pos in pos_objects])
+                    noun_chunk = NounChunk.objects.create(
+                        sentence=sentence,
+                        chunk_text=noun_chunk_text
+                    )
+
+                    # Link the POS words to the noun chunk
+                    noun_chunk.words.set(pos_objects)
+
+            return JsonResponse({'message': 'Tagged words and noun chunks saved successfully'}, status=200)
 
         except Exception as e:
-            return JsonResponse({'error': 'Failed to save tagged words', 'details': str(e)}, status=500)
+            return JsonResponse({'error': 'Failed to save tagged words or noun chunks', 'details': str(e)}, status=500)
 
     return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 def index(request):
-    ner_entries = list(NER.objects.values('word', 'tag__name'))  # Fetch tag name directly
-    return render(request, 'tagger/index.html', {'ner_entries': json.dumps(ner_entries)})
+    pos_entries = list(POS.objects.values('word', 'tag'))  # Fetch tag name directly
+    return render(request, 'pos_tagger/index.html', {'pos_entries': json.dumps(pos_entries)})
 
 def fetch_tag_table(request):
-    tag_entries = NER.objects.select_related('tag').values('word', 'tag__name')
+    tag_entries = POS.objects.select_related('tag').values('word', 'tag__name')
     data = [{'word': entry['word'], 'tag': entry['tag__name']} for entry in tag_entries]
     return JsonResponse(data, safe=False)
 
-# This is the index view that renders the first page, displaying the NER entries
-# def index(request):
-#     # Fetch existing NER entries for display
-#     ner_entries = list(NER.objects.values('word', 'tag__name'))  # Fetch tag name directly
-#     return render(request, 'tagger/index.html', {'ner_entries': json.dumps(ner_entries)})
+# def main(request):
+#     # Fetch all saved sentences to display them on index1
+#     sentences = Sentence.objects.all()
+#     return render(request, 'pos_tagger/main.html', {'sentences': sentences})
 
-
-# This view handles displaying sentences one by one in order
-# Inside the main1 view
-def main1(request):
+def main(request):
     # Get the saved sentence IDs from the session
     saved_sentence_ids = request.session.get('saved_sentences', [])
 
@@ -102,16 +122,19 @@ def main1(request):
     # Get the current sentence based on the sentence_index
     current_sentence = sentences[sentence_index] if sentences else None
 
-    # Pass the current sentence and the total number of sentences to the template
+    # Fetch the noun chunks for the current sentence
+    noun_chunks = NounChunk.objects.filter(sentence=current_sentence) if current_sentence else []
+
+    # Pass the current sentence, noun chunks, and other context data to the template
     context = {
         'sentence': current_sentence.text if current_sentence else '',
         'sentence_index': sentence_index,
         'total_sentences': len(sentences),
         'sentences': json.dumps([sentence.text for sentence in sentences]),  # Ensure proper JSON serialization
+        'noun_chunks': noun_chunks  # Pass noun chunks to the template
     }
 
-    return render(request, 'tagger/main1.html', context)
-
+    return render(request, 'pos_tagger/main.html', context)
 
 def update_sentence_index(request):
     print("Received request to update sentence index")  # Add this line
@@ -123,6 +146,9 @@ def update_sentence_index(request):
 
     return JsonResponse({'success': False}, status=400)
 
-# This is the main index page view
-def tagger_index(request):
-    return render(request, 'tagger/index.html')
+def pos_tagger_index(request):
+    return render(request, 'pos_tagger/index.html')
+
+# def home(request):
+#     # You can choose to redirect to one of the apps, for example:
+#     return redirect('tagger_index')
